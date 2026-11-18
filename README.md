@@ -1,5 +1,7 @@
 # ScamShield
 
+![CI](https://github.com/marwen-jammazi/scamshield/actions/workflows/ci.yml/badge.svg)
+
 Multilingual scam and phishing detector for **Arabic, French and English**. Paste a suspicious message or link and get a risk score with a plain-language explanation of *why* it looks like a scam.
 
 ![ScamShield screenshot](docs/screenshot.png)
