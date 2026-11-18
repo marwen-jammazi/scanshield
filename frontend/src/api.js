@@ -11,3 +11,9 @@ export async function scanMessage(message) {
   }
   return res.json()
 }
+
+export async function getHistory() {
+  const res = await fetch(`${API_URL}/api/scans`)
+  if (!res.ok) throw new Error('Could not load history.')
+  return res.json()
+}

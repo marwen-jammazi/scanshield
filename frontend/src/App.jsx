@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { scanMessage } from './api'
+import { useCallback, useEffect, useState } from 'react'
+import { getHistory, scanMessage } from './api'
+import HistoryList from './components/HistoryList'
 import ResultCard from './components/ResultCard'
 
 const EXAMPLES = [
@@ -11,20 +12,41 @@ const EXAMPLES = [
 export default function App() {
   const [message, setMessage] = useState('')
   const [result, setResult] = useState(null)
+  const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      setHistory(await getHistory())
+    } catch {
+      // History is a bonus feature: if it fails, the scanner still works
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshHistory()
+  }, [refreshHistory])
 
   async function handleScan() {
     setLoading(true)
     setError('')
     try {
       setResult(await scanMessage(message))
+      refreshHistory()
     } catch (e) {
       setResult(null)
       setError(e.message)
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleSelect(item) {
+    setMessage(item.message)
+    setResult({ score: item.score, level: item.level, reasons: item.reasons })
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -67,6 +89,8 @@ export default function App() {
 
         {error && <p className="mt-4 text-red-400">{error}</p>}
         {result && <ResultCard result={result} />}
+
+        <HistoryList items={history} onSelect={handleSelect} />
       </main>
     </div>
   )
