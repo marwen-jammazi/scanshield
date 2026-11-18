@@ -15,6 +15,10 @@ public class ScanRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private AppUser owner;
+
     @Column(nullable = false, length = 5000)
     private String message;
 
@@ -35,7 +39,8 @@ public class ScanRecord {
 
     protected ScanRecord() {}
 
-    public ScanRecord(String message, int score, RiskLevel level, List<String> reasons) {
+    public ScanRecord(AppUser owner, String message, int score, RiskLevel level, List<String> reasons) {
+        this.owner = owner;
         this.message = message;
         this.score = score;
         this.level = level;

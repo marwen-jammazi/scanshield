@@ -5,6 +5,8 @@ import com.scanshield.backend.dto.ScanRequest;
 import com.scanshield.backend.dto.ScanResponse;
 import com.scanshield.backend.service.ScanHistoryService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,13 +25,16 @@ public class ScanController {
         this.historyService = historyService;
     }
 
+    // Public endpoint: jwt is null for anonymous callers, so nothing is saved for them
     @PostMapping("/scan")
-    public ScanResponse scan(@Valid @RequestBody ScanRequest request) {
-        return historyService.scanAndSave(request.message());
+    public ScanResponse scan(@Valid @RequestBody ScanRequest request, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt == null ? null : Long.valueOf(jwt.getSubject());
+        return historyService.scanAndSave(request.message(), userId);
     }
 
+    // Protected endpoint: only ever returns the caller's own scans
     @GetMapping("/scans")
-    public List<ScanHistoryItem> history() {
-        return historyService.recent();
+    public List<ScanHistoryItem> history(@AuthenticationPrincipal Jwt jwt) {
+        return historyService.recent(Long.valueOf(jwt.getSubject()));
     }
 }

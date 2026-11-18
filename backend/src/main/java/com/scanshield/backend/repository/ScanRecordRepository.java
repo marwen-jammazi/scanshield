@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ScanRecordRepository extends JpaRepository<ScanRecord, Long> {
 
-    List<ScanRecord> findTop20ByOrderByCreatedAtDesc();
+    List<ScanRecord> findTop20ByOwnerIdOrderByCreatedAtDesc(Long ownerId);
 }

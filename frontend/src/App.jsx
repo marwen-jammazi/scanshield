@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getHistory, scanMessage } from './api'
+import { clearAuth, getAuth, saveAuth } from './auth'
+import AuthForm from './components/AuthForm'
 import HistoryList from './components/HistoryList'
 import ResultCard from './components/ResultCard'
 
@@ -10,6 +12,8 @@ const EXAMPLES = [
 ]
 
 export default function App() {
+  const [user, setUser] = useState(getAuth)
+  const [showAuth, setShowAuth] = useState(false)
   const [message, setMessage] = useState('')
   const [result, setResult] = useState(null)
   const [history, setHistory] = useState([])
@@ -20,20 +24,36 @@ export default function App() {
     try {
       setHistory(await getHistory())
     } catch {
-      // History is a bonus feature: if it fails, the scanner still works
+      // If the session expired, getHistory already cleared it: update the UI to match
+      setUser(getAuth())
     }
   }, [])
 
   useEffect(() => {
-    refreshHistory()
-  }, [refreshHistory])
+    if (user) refreshHistory()
+  }, [user, refreshHistory])
+
+  function handleAuthenticated(auth) {
+    saveAuth(auth)
+    setUser(auth)
+    setShowAuth(false)
+  }
+
+  function handleLogout() {
+    clearAuth()
+    setUser(null)
+    setHistory([])
+  }
 
   async function handleScan() {
     setLoading(true)
     setError('')
     try {
       setResult(await scanMessage(message))
-      refreshHistory()
+      // scanMessage may have dropped an expired token, so re-read the login state
+      const auth = getAuth()
+      setUser(auth)
+      if (auth) refreshHistory()
     } catch (e) {
       setResult(null)
       setError(e.message)
@@ -52,10 +72,30 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-900 px-4 py-12 text-white">
       <main className="mx-auto max-w-2xl">
-        <h1 className="text-4xl font-bold text-emerald-400">ScamShield</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-4xl font-bold text-emerald-400">ScamShield</h1>
+          {user ? (
+            <div className="text-end text-sm">
+              <p className="text-slate-300">{user.email}</p>
+              <button onClick={handleLogout} className="text-slate-400 hover:text-emerald-300">
+                Log out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuth((v) => !v)}
+              className="rounded-full border border-slate-600 px-4 py-1.5 text-sm text-slate-300 hover:border-emerald-500 hover:text-emerald-300"
+            >
+              Log in / Sign up
+            </button>
+          )}
+        </div>
+
         <p className="mt-2 text-slate-400">
           Paste a suspicious message or link in Arabic, French or English and see why it might be a scam.
         </p>
+
+        {!user && showAuth && <AuthForm onAuthenticated={handleAuthenticated} />}
 
         <textarea
           dir="auto"
@@ -90,7 +130,13 @@ export default function App() {
         {error && <p className="mt-4 text-red-400">{error}</p>}
         {result && <ResultCard result={result} />}
 
-        <HistoryList items={history} onSelect={handleSelect} />
+        {user ? (
+          <HistoryList items={history} onSelect={handleSelect} />
+        ) : (
+          <p className="mt-10 text-sm text-slate-500">
+            Guest scans are not stored. Log in to keep a private history of your scans.
+          </p>
+        )}
       </main>
     </div>
   )
