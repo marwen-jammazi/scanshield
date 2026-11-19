@@ -11,14 +11,14 @@ public class CorsConfig implements WebMvcConfigurer {
     private final String[] allowedOrigins;
 
     public CorsConfig(
-            @Value("${scamshield.cors.allowed-origins:http://localhost:5173}") String[] allowedOrigins) {
+            @Value("${scamshield.cors.allowed-origins:http://localhost:5173,chrome-extension://*}") String[] allowedOrigins) {
         this.allowedOrigins = allowedOrigins;
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins)
+                .allowedOriginPatterns(allowedOrigins)
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowedHeaders("*")
                 .maxAge(3600);

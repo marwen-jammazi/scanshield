@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "ScamShield",
+  "version": "0.1.0",
+  "description": "Check suspicious messages in Arabic, French, English and Arabizi.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://localhost:8080/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ScamShield"
+  }
+}
