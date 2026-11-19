@@ -30,8 +30,20 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (user) refreshHistory()
-  }, [user, refreshHistory])
+    if (!user) return
+    let cancelled = false
+    getHistory()
+      .then((items) => {
+        if (!cancelled) setHistory(items)
+      })
+      .catch(() => {
+        // An expired session was already cleared by getHistory: sync the UI with it
+        if (!cancelled) setUser(getAuth())
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   function handleAuthenticated(auth) {
     saveAuth(auth)
