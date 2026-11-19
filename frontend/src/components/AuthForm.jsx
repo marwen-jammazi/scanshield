@@ -23,12 +23,11 @@ export default function AuthForm({ onAuthenticated }) {
     }
   }
 
-  const inputClass =
-    'w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none'
+  const inputClass = 'clay-inset w-full p-4 font-semibold text-ink placeholder:text-ink-soft'
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-3 rounded-xl border border-slate-700 bg-slate-800 p-6">
-      <h2 className="text-lg font-semibold">{isLogin ? 'Log in' : 'Create an account'}</h2>
+    <form onSubmit={handleSubmit} className="clay mt-8 space-y-4 p-6">
+      <h2 className="text-xl font-extrabold">{isLogin ? 'Log in' : 'Create an account'}</h2>
 
       <input
         type="email"
@@ -50,13 +49,13 @@ export default function AuthForm({ onAuthenticated }) {
         className={inputClass}
       />
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <p role="alert" className="font-semibold text-[#b42323]">
+          {error}
+        </p>
+      )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-lg bg-emerald-500 py-3 font-semibold text-slate-900 hover:bg-emerald-400 disabled:opacity-50"
-      >
+      <button type="submit" disabled={loading} className="clay-btn clay-mint w-full py-4 text-lg font-extrabold">
         {loading ? 'Please wait...' : isLogin ? 'Log in' : 'Sign up'}
       </button>
 
@@ -66,7 +65,7 @@ export default function AuthForm({ onAuthenticated }) {
           setMode(isLogin ? 'register' : 'login')
           setError('')
         }}
-        className="w-full text-sm text-slate-400 hover:text-emerald-300"
+        className="w-full font-semibold text-ink-soft hover:text-ink"
       >
         {isLogin ? 'No account yet? Sign up' : 'Already have an account? Log in'}
       </button>

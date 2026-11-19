@@ -1,30 +1,32 @@
 const DOT = {
-  LOW: 'bg-emerald-500',
-  MEDIUM: 'bg-amber-500',
-  HIGH: 'bg-red-500',
+  LOW: '#3fd69a',
+  MEDIUM: '#ffb84d',
+  HIGH: '#ff6b6b',
 }
 
 export default function HistoryList({ items, onSelect }) {
   if (items.length === 0) return null
 
   return (
-    <section className="mt-10">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-        Recent scans
-      </h2>
-      <ul className="mt-3 space-y-2">
+    <section className="mt-12">
+      <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink-soft">Recent scans</h2>
+      <ul className="mt-4 space-y-4">
         {items.map((item) => (
           <li key={item.id}>
             <button
               onClick={() => onSelect(item)}
               title={new Date(item.createdAt).toLocaleString()}
-              className="flex w-full items-center gap-3 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 hover:border-emerald-500"
+              className="clay-btn flex w-full items-center gap-3 bg-[#fbf9ff] px-5 py-4"
             >
-              <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[item.level]}`} />
-              <span dir="auto" className="flex-1 truncate text-start text-slate-200">
+              <span
+                className="clay-pill h-3.5 w-3.5 shrink-0 rounded-full"
+                style={{ background: DOT[item.level] }}
+                aria-hidden="true"
+              />
+              <span dir="auto" className="flex-1 truncate text-start font-semibold">
                 {item.message}
               </span>
-              <span className="text-sm text-slate-400">{item.score}</span>
+              <span className="font-extrabold text-ink-soft">{item.score}</span>
             </button>
           </li>
         ))}

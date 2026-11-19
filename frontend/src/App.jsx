@@ -82,70 +82,85 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 px-4 py-12 text-white">
+    <div className="min-h-screen px-4 py-10 text-ink">
       <main className="mx-auto max-w-2xl">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-4xl font-bold text-emerald-400">ScamShield</h1>
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div
+              className="clay flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] text-2xl"
+              aria-hidden="true"
+            >
+              
+            </div>
+            <h1 className="text-3xl font-extrabold text-[#6c5ce7]">ScamShield</h1>
+          </div>
+
           {user ? (
             <div className="text-end text-sm">
-              <p className="text-slate-300">{user.email}</p>
-              <button onClick={handleLogout} className="text-slate-400 hover:text-emerald-300">
+              <p className="font-bold">{user.email}</p>
+              <button onClick={handleLogout} className="font-semibold text-ink-soft hover:text-ink">
                 Log out
               </button>
             </div>
           ) : (
             <button
               onClick={() => setShowAuth((v) => !v)}
-              className="rounded-full border border-slate-600 px-4 py-1.5 text-sm text-slate-300 hover:border-emerald-500 hover:text-emerald-300"
+              className="clay-btn rounded-full bg-[#fbf9ff] px-5 py-2.5 text-sm font-bold"
             >
               Log in / Sign up
             </button>
           )}
-        </div>
+        </header>
 
-        <p className="mt-2 text-slate-400">
-          Paste a suspicious message or link in Arabic, French or English and see why it might be a scam.
+        <p className="mt-6 font-semibold text-ink-soft">
+          Paste a suspicious message or link in Arabic, French, English or Arabizi and see why it might be a scam.
         </p>
 
         {!user && showAuth && <AuthForm onAuthenticated={handleAuthenticated} />}
 
-        <textarea
-          dir="auto"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={6}
-          placeholder="Paste the message here..."
-          className="mt-6 w-full rounded-xl border border-slate-700 bg-slate-800 p-4 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-        />
+        <section className="clay mt-8 p-6">
+          <textarea
+            dir="auto"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={6}
+            placeholder="Paste the message here..."
+            className="clay-inset w-full resize-y p-4 font-semibold text-ink placeholder:text-ink-soft"
+          />
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-slate-400">Try an example:</span>
-          {EXAMPLES.map((ex) => (
-            <button
-              key={ex.label}
-              onClick={() => setMessage(ex.text)}
-              className="rounded-full border border-slate-600 px-3 py-1 text-sm text-slate-300 hover:border-emerald-500 hover:text-emerald-300"
-            >
-              {ex.label}
-            </button>
-          ))}
-        </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-bold text-ink-soft">Try an example:</span>
+            {EXAMPLES.map((ex) => (
+              <button
+                key={ex.label}
+                onClick={() => setMessage(ex.text)}
+                className="clay-btn rounded-full bg-[#fbf9ff] px-4 py-1.5 text-sm font-bold"
+              >
+                {ex.label}
+              </button>
+            ))}
+          </div>
 
-        <button
-          onClick={handleScan}
-          disabled={loading || message.trim() === ''}
-          className="mt-6 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading ? 'Scanning...' : 'Scan message'}
-        </button>
+          <button
+            onClick={handleScan}
+            disabled={loading || message.trim() === ''}
+            className="clay-btn clay-mint mt-6 w-full py-4 text-lg font-extrabold"
+          >
+            {loading ? 'Scanning...' : 'Scan message'}
+          </button>
+        </section>
 
-        {error && <p className="mt-4 text-red-400">{error}</p>}
+        {error && (
+          <p role="alert" className="mt-5 font-bold text-[#b42323]">
+            {error}
+          </p>
+        )}
         {result && <ResultCard result={result} />}
 
         {user ? (
           <HistoryList items={history} onSelect={handleSelect} />
         ) : (
-          <p className="mt-10 text-sm text-slate-500">
+          <p className="mt-12 text-sm font-semibold text-ink-soft">
             Guest scans are not stored. Log in to keep a private history of your scans.
           </p>
         )}
