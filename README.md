@@ -2,9 +2,9 @@
 
 ![CI](https://github.com/marwen-jammazi/scamshield/actions/workflows/ci.yml/badge.svg)
 
-Multilingual scam and phishing detector for **Arabic, French, English and Arabizi**. Paste a suspicious message or link and get a risk score with a plain-language explanation of *why* it looks like a scam.
+Multilingual scam and phishing detector for **Arabic, French, English and Arabizi**. Paste a suspicious message or link and get a risk score with a plain-language explanation of *why* it looks like a scam. Available as a web app and as a browser extension.
 
-![ScamShield screenshot](docs/screenshot.png)
+![ScamShield web app](docs/screenshot.png)
 
 ## Why this project
 
@@ -18,8 +18,24 @@ Most scam checkers only handle English. In Tunisia and the wider Maghreb, scam m
 - Link analysis: URL shorteners, raw IP addresses, and domain extensions often used in scams
 - Accounts with JWT login and a private scan history for each user
 - Guest scanning: anonymous messages are analyzed but never stored
-- Right-to-left input support in the UI
+- Browser extension: select text on any page and scan it from the toolbar
+- Right-to-left input support in the UI, with a claymorphism design
 - Unit-tested detection engine and ownership rules
+
+## Browser extension
+
+Select suspicious text on any web page, click the ScamShield icon, and the verdict appears right away. The extension scans as a guest, so nothing is stored.
+
+<img src="docs/extension.png" alt="ScamShield extension popup" width="320">
+
+**Install (developer mode):**
+
+1. Start the backend (see below).
+2. Open `chrome://extensions` (or `opera://extensions`) and turn on **Developer mode**.
+3. Click **Load unpacked** and select the `extension/` folder.
+4. Pin the ScamShield icon to your toolbar.
+
+The extension talks to `http://localhost:8080`. To point it at another server, change `API_URL` in `extension/popup.js` and `host_permissions` in `extension/manifest.json`.
 
 ## Tech stack
 
@@ -28,6 +44,7 @@ Most scam checkers only handle English. In Tunisia and the wider Maghreb, scam m
 | Backend | Java 21, Spring Boot, Spring Security (JWT), Spring Data JPA, Maven |
 | Database | H2 for development and tests (MySQL profile planned) |
 | Frontend | React, Vite, Tailwind CSS |
+| Extension | Manifest V3, plain JavaScript |
 | Testing | JUnit 5, AssertJ, Mockito |
 | CI | GitHub Actions |
 
@@ -58,7 +75,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-The API runs on http://localhost:8080. Development data is stored in `backend/data/` (ignored by Git).
+The API runs on http://localhost:8080. Development data is stored in `backend/data/` (ignored by Git). Run the backend from the `backend` folder so the database file ends up in the right place.
 
 **Frontend**
 
@@ -111,13 +128,14 @@ POST /api/scan
 - Tokens are JWTs signed with HS256 and expire after 2 hours. Set the `JWT_SECRET` environment variable (at least 32 bytes) in any real deployment; the built-in default is for local development only.
 - Login returns the same error for an unknown email and a wrong password.
 - The frontend keeps the token in `localStorage`, a common trade-off for a project like this. A production system would prefer an HttpOnly cookie.
-- CORS only allows the configured frontend origin (`scamshield.cors.allowed-origins`).
+- CORS allows the configured frontend origin (`scamshield.cors.allowed-origins`) and browser extensions (`chrome-extension://*`). That is acceptable because the scan endpoint is public by design; history and account data still require a valid token.
 
 ## Known limitations
 
 - The keyword lists are a starting point. Arabizi has no standard spelling, so variants will slip through. Real scam samples are welcome as test cases.
 - Detection is rule-based, so a scam that avoids all the known signals will score low. A score is a hint, not a verdict.
-- Docker files are included but have not been verified end to end yet.
+- Docker files are included, but the Compose setup has not been run locally yet.
+- The extension is not published to a browser store and is configured for a local server.
 
 ## Roadmap
 
@@ -126,9 +144,9 @@ POST /api/scan
 - [x] GitHub Actions CI
 - [x] User accounts and private scan history (H2)
 - [x] Arabizi detection
+- [x] Browser extension
 - [ ] Verify the Docker Compose setup
 - [ ] MySQL profile
-- [ ] Chrome extension
 - [ ] ML scoring service
 
 ## Author
