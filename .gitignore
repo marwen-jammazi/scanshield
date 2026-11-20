@@ -1,3 +1,18 @@
 
 # Local database files
 data/
+
+# ML service
+ml-service/.venv/
+ml-service/model.joblib
+__pycache__/
+
+# ML service
+ml-service/.venv/
+ml-service/model.joblib
+__pycache__/
+
+# ML service
+ml-service/.venv/
+ml-service/model.joblib
+__pycache__/

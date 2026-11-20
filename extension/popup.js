@@ -4,9 +4,9 @@ const MAX_LENGTH = 5000
 const $ = (id) => document.getElementById(id)
 
 const LEVELS = {
-  LOW: { label: 'Low risk', color: '#10b981' },
-  MEDIUM: { label: 'Medium risk', color: '#f59e0b' },
-  HIGH: { label: 'High risk', color: '#ef4444' },
+  LOW: { label: 'Low risk', bg: '#c4f5df', fg: '#0b4a35', fill: '#3fd69a' },
+  MEDIUM: { label: 'Medium risk', bg: '#ffe3ad', fg: '#6b4200', fill: '#ffb84d' },
+  HIGH: { label: 'High risk', bg: '#ffc9c9', fg: '#7a1111', fill: '#ff6b6b' },
 }
 
 async function getSelectedText() {
@@ -25,16 +25,33 @@ async function getSelectedText() {
 
 function render(result) {
   const level = LEVELS[result.level]
-  $('badge').textContent = level.label
-  $('badge').style.background = level.color
-  $('score').textContent = `${result.score}/100`
+
+  const badge = $('badge')
+  badge.textContent = level.label
+  badge.style.background = level.bg
+  badge.style.color = level.fg
+
+  $('score').replaceChildren(String(result.score))
+  const small = document.createElement('small')
+  small.textContent = '/100'
+  $('score').appendChild(small)
+
+  $('track').setAttribute('aria-valuenow', String(result.score))
+  $('bar').style.width = `${result.score}%`
+  $('bar').style.background = level.fill
 
   const list = $('reasons')
   list.replaceChildren()
   const reasons = result.reasons.length ? result.reasons : ['No suspicious signals found.']
   for (const reason of reasons) {
     const li = document.createElement('li')
-    li.textContent = reason
+    const dot = document.createElement('span')
+    dot.className = 'dot clay-pill'
+    dot.style.background = level.fill
+    dot.setAttribute('aria-hidden', 'true')
+    const text = document.createElement('span')
+    text.textContent = reason
+    li.append(dot, text)
     list.appendChild(li)
   }
   $('result').style.display = 'block'

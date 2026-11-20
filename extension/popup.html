@@ -2,37 +2,146 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ScamShield</title>
   <style>
-    body { width: 340px; margin: 0; padding: 16px; background: #0f172a; color: #fff;
-           font-family: system-ui, sans-serif; font-size: 14px; }
-    h1 { margin: 0 0 4px; font-size: 18px; color: #34d399; }
-    p.sub { margin: 0 0 12px; color: #94a3b8; font-size: 12px; }
-    textarea { width: 100%; box-sizing: border-box; height: 90px; padding: 8px; resize: vertical;
-               background: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 8px; }
-    button { width: 100%; margin-top: 8px; padding: 10px; border: 0; border-radius: 8px;
-             background: #10b981; color: #0f172a; font-weight: 600; cursor: pointer; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    #error { margin-top: 8px; color: #f87171; }
-    #result { display: none; margin-top: 12px; padding: 12px; background: #1e293b;
-              border: 1px solid #334155; border-radius: 8px; }
-    .row { display: flex; justify-content: space-between; align-items: center; }
-    #badge { padding: 2px 10px; border-radius: 999px; font-weight: 600; color: #0f172a; }
-    #score { font-size: 22px; font-weight: 700; }
-    ul { margin: 10px 0 0; padding-left: 18px; }
-    li { margin-bottom: 4px; }
+    :root {
+      --ink: #2f2a52;
+      --ink-soft: #6b668f;
+      --violet: #6c5ce7;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      width: 360px;
+      padding: 18px;
+      color: var(--ink);
+      font-family: ui-rounded, "Nunito", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      background-color: #f4f0ff;
+      background-image:
+        radial-gradient(circle at 10% 5%, #ffe0f0 0, transparent 45%),
+        radial-gradient(circle at 95% 15%, #d6e6ff 0, transparent 45%),
+        radial-gradient(circle at 50% 100%, #d9fbe8 0, transparent 50%);
+    }
+    :focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+
+    /* Raised, puffy surface */
+    .clay {
+      background: #fbf9ff;
+      border-radius: 1.5rem;
+      box-shadow:
+        9px 9px 20px rgba(140, 120, 190, 0.28),
+        -6px -6px 15px rgba(255, 255, 255, 0.95),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.95),
+        inset -5px -5px 10px rgba(150, 130, 200, 0.18);
+    }
+    /* Pressed-in surface */
+    .clay-inset {
+      background: #eee9fc;
+      border-radius: 1.1rem;
+      box-shadow:
+        inset 5px 5px 10px rgba(140, 120, 190, 0.28),
+        inset -5px -5px 10px rgba(255, 255, 255, 0.95);
+    }
+    /* Small puffy element */
+    .clay-pill {
+      box-shadow:
+        3px 3px 7px rgba(140, 120, 190, 0.25),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.7),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    header { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 46px; height: 46px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; border-radius: 1rem;
+    }
+    h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--violet); }
+    .sub { margin: 14px 0 0; color: var(--ink-soft); font-size: 12px; }
+
+    .panel { margin-top: 14px; padding: 16px; }
+    textarea {
+      display: block; width: 100%; height: 96px; padding: 12px;
+      resize: vertical; border: 0;
+      color: var(--ink); font: inherit;
+    }
+    textarea::placeholder { color: var(--ink-soft); }
+
+    button#scan {
+      width: 100%; margin-top: 12px; padding: 13px; border: 0;
+      border-radius: 1.2rem; cursor: pointer;
+      color: #0b3d2c; font: inherit; font-size: 15px; font-weight: 800;
+      background: linear-gradient(145deg, #8ef5c8, #43d99c);
+      box-shadow:
+        6px 6px 14px rgba(140, 120, 190, 0.28),
+        -3px -3px 9px rgba(255, 255, 255, 0.9),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.7),
+        inset -4px -4px 8px rgba(0, 120, 80, 0.18);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    button#scan:hover:not(:disabled) { transform: translateY(-2px); }
+    button#scan:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow:
+        inset 4px 4px 10px rgba(0, 100, 70, 0.3),
+        inset -3px -3px 8px rgba(255, 255, 255, 0.6);
+    }
+    button#scan:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    #error { margin: 12px 2px 0; color: #b42323; font-weight: 700; }
+    #error:empty { display: none; }
+
+    #result { display: none; margin-top: 14px; padding: 16px; }
+    .row { display: flex; align-items: center; justify-content: space-between; }
+    #badge { padding: 5px 14px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+    #score { font-size: 30px; font-weight: 800; }
+    #score small { font-size: 14px; color: var(--ink-soft); }
+    .track { margin-top: 14px; height: 16px; padding: 3px; border-radius: 999px; }
+    #bar { height: 100%; border-radius: 999px; width: 0; }
+    h2 {
+      margin: 16px 0 0; color: var(--ink-soft);
+      font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    ul { margin: 8px 0 0; padding: 0; list-style: none; }
+    li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .dot { width: 11px; height: 11px; flex-shrink: 0; margin-top: 5px; border-radius: 50%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      button#scan { transition: none; }
+      button#scan:hover:not(:disabled) { transform: none; }
+    }
   </style>
 </head>
 <body>
-  <h1>ScamShield</h1>
+  <header>
+    <div class="clay logo" aria-hidden="true"></div>
+    <h1>ScamShield</h1>
+  </header>
   <p class="sub">Select text on a page before opening, or paste it here.</p>
-  <textarea id="message" dir="auto" placeholder="Paste a suspicious message..."></textarea>
-  <button id="scan">Scan message</button>
-  <p id="error"></p>
-  <div id="result">
-    <div class="row"><span id="badge"></span><span id="score"></span></div>
+
+  <section class="clay panel">
+    <textarea id="message" class="clay-inset" dir="auto" placeholder="Paste a suspicious message..."></textarea>
+    <button id="scan">Scan message</button>
+  </section>
+
+  <p id="error" role="alert"></p>
+
+  <section id="result" class="clay">
+    <div class="row">
+      <span id="badge" class="clay-pill"></span>
+      <span id="score"></span>
+    </div>
+    <div class="track clay-inset" role="progressbar" aria-label="Risk score"
+         aria-valuemin="0" aria-valuemax="100" id="track">
+      <div id="bar" class="clay-pill"></div>
+    </div>
+    <h2>Why</h2>
     <ul id="reasons"></ul>
-  </div>
+  </section>
+
   <script src="popup.js"></script>
 </body>
 </html>
