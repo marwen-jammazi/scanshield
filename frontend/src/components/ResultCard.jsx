@@ -4,8 +4,16 @@ const STYLES = {
   HIGH: { label: 'High risk', badge: 'bg-[#ffc9c9] text-[#7a1111]', fill: '#ff6b6b' },
 }
 
+function mlFill(percent) {
+  if (percent >= 60) return STYLES.HIGH.fill
+  if (percent >= 40) return STYLES.MEDIUM.fill
+  return STYLES.LOW.fill
+}
+
 export default function ResultCard({ result }) {
   const style = STYLES[result.level]
+  // Only present when the ML service answered for this scan
+  const mlPercent = typeof result.mlProbability === 'number' ? Math.round(result.mlProbability * 100) : null
 
   return (
     <div className="clay mt-6 p-6">
@@ -32,6 +40,31 @@ export default function ResultCard({ result }) {
           style={{ width: `${result.score}%`, background: style.fill }}
         />
       </div>
+
+      {mlPercent !== null && (
+        <div className="clay-inset mt-6 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-ink-soft">AI model check</h3>
+            <span className="font-extrabold">{mlPercent}% likely a scam</span>
+          </div>
+          <div
+            className="clay-inset mt-3 h-4 rounded-full p-0.5"
+            role="progressbar"
+            aria-label="AI model scam probability"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={mlPercent}
+          >
+            <div
+              className="clay-pill h-full rounded-full"
+              style={{ width: `${mlPercent}%`, background: mlFill(mlPercent) }}
+            />
+          </div>
+          <p className="mt-2 text-xs font-semibold text-ink-soft">
+            Experimental: the model is trained on a small dataset, so treat this as a hint.
+          </p>
+        </div>
+      )}
 
       <h3 className="mt-6 text-sm font-extrabold uppercase tracking-wide text-ink-soft">Why</h3>
       {result.reasons.length === 0 ? (

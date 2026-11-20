@@ -23,6 +23,20 @@ async function getSelectedText() {
   }
 }
 
+function renderMl(probability) {
+  const panel = $('ml')
+  if (typeof probability !== 'number') {
+    panel.style.display = 'none'
+    return
+  }
+  const percent = Math.round(probability * 100)
+  $('mlPct').textContent = `${percent}% likely a scam`
+  $('mlBar').style.width = `${percent}%`
+  $('mlBar').style.background =
+    percent >= 60 ? LEVELS.HIGH.fill : percent >= 40 ? LEVELS.MEDIUM.fill : LEVELS.LOW.fill
+  panel.style.display = 'block'
+}
+
 function render(result) {
   const level = LEVELS[result.level]
 
@@ -39,6 +53,8 @@ function render(result) {
   $('track').setAttribute('aria-valuenow', String(result.score))
   $('bar').style.width = `${result.score}%`
   $('bar').style.background = level.fill
+
+  renderMl(result.mlProbability)
 
   const list = $('reasons')
   list.replaceChildren()

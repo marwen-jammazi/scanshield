@@ -4,15 +4,14 @@ import com.scanshield.backend.ml.MlClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Adds points when the ML model finds the text similar to known scams.
- * It can only add points, never remove them, and it is skipped when the service is unavailable.
+ * Wraps the ML model. The probability is always reported to the user when available;
+ * points are only added when it passes the threshold, and the model can never remove points.
  */
 @Component
-public class MlRule implements DetectionRule {
+public class MlRule {
 
     private final MlClient client;
     private final double threshold;
@@ -27,16 +26,15 @@ public class MlRule implements DetectionRule {
         this.maxPoints = maxPoints;
     }
 
-    @Override
-    public List<RuleResult> evaluate(String message) {
-        Optional<Double> probability = client.scamProbability(message);
-        if (probability.isEmpty() || probability.get() < threshold) {
-            return List.of();
+    public Optional<Double> probability(String message) {
+        return client.scamProbability(message);
+    }
+
+    public Optional<RuleResult> finding(double probability) {
+        if (probability < threshold) {
+            return Optional.empty();
         }
-        double p = probability.get();
-        int points = (int) Math.round(p * maxPoints);
-        String reason = "Text closely resembles known scam messages (model confidence "
-                + Math.round(p * 100) + "%)";
-        return List.of(new RuleResult(points, reason));
+        int points = (int) Math.round(probability * maxPoints);
+        return Optional.of(new RuleResult(points, "The AI model finds this text similar to known scam messages"));
     }
 }
